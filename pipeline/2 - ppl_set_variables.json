@@ -1,0 +1,117 @@
+{
+	"name": "2 - ppl_set_variables",
+	"properties": {
+		"activities": [
+			{
+				"name": "SVT - Definir data_particao",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_data_particao",
+					"value": {
+						"value": "@convertFromUtc(\n    utcnow(), 'E. South America Standard Time', 'yyyy/MM/dd'\n)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SVT - Definir diretorio_destino",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_data_particao",
+					"value": {
+						"value": "@toLower(\n  concat(\n    'TeXt',\n    '/',\n    'ENEM'\n  )\n)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SVT - Definir arquivo_destino",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "SVT - Definir diretorio_destino",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "SVT - Definir data_particao",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_arquivo_destino",
+					"value": {
+						"value": "@toLower(\n    concat(\n        pipeline().parameters.p_assunto_origem,\n        '__', \n        if(\n            empty(variables('v_data_particao')),\n            formatDateTime(utcNow(), 'yyyyMMdd'),\n            replace(variables('v_data_particao'), '/', '')\n        )\n    )\n)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SVB - Definir diretorio_completo",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "SVT - Definir diretorio_destino",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "SVT - Definir data_particao",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_diretorio_completo",
+					"value": {
+						"value": "@toLower(\n    concat(\n        variables('v_diretorio_destino'),\n        '/', \n        pipeline().parameters.p_assunto_origem,\n        if(\n            empty(variables('v_data_particao')),\n            '',\n            concat('/', variables('v_data_particao'))\n        )\n    )\n)",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"p_assunto_origem": {
+				"type": "string",
+				"defaultValue": "prova_enem"
+			},
+			"p_diretorio_destino": {
+				"type": "string",
+				"defaultValue": "text/enem"
+			},
+			"p_container_destino": {
+				"type": "string",
+				"defaultValue": "raw"
+			}
+		},
+		"variables": {
+			"v_data_particao": {
+				"type": "String"
+			},
+			"v_diretorio_destino": {
+				"type": "String"
+			},
+			"v_arquivo_destino": {
+				"type": "String"
+			},
+			"v_diretorio_completo": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "study activities"
+		},
+		"annotations": []
+	}
+}
