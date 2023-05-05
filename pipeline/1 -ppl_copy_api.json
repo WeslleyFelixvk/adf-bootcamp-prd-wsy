@@ -16,77 +16,41 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "WebSource"
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
 					},
 					"sink": {
-						"type": "DelimitedTextSink",
+						"type": "JsonSink",
 						"storeSettings": {
 							"type": "AzureBlobFSWriteSettings"
 						},
 						"formatSettings": {
-							"type": "DelimitedTextWriteSettings",
-							"quoteAllText": true,
-							"fileExtension": ".txt"
+							"type": "JsonWriteSettings"
 						}
 					},
 					"enableStaging": false,
-					"enableSkipIncompatibleRow": false,
-					"translator": {
-						"type": "TabularTranslator",
-						"mappings": [
-							{
-								"source": {
-									"name": "Período",
-									"type": "String"
-								},
-								"sink": {
-									"name": "periodo",
-									"physicalType": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "Salário mínimo nominal",
-									"type": "String"
-								},
-								"sink": {
-									"name": "salario_minimo_nominal",
-									"physicalType": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "Salário mínimo necessário",
-									"type": "String"
-								},
-								"sink": {
-									"name": "salario_minimo_necessario",
-									"physicalType": "String"
-								}
-							}
-						],
-						"typeConversion": true,
-						"typeConversionSettings": {
-							"allowDataTruncation": true,
-							"treatBooleanAsNumber": false
-						}
-					}
+					"enableSkipIncompatibleRow": false
 				},
 				"inputs": [
 					{
-						"referenceName": "ds_webtable_salariominimo",
+						"referenceName": "ds_json_api_dummy",
 						"type": "DatasetReference"
 					}
 				],
 				"outputs": [
 					{
-						"referenceName": "ds_text_dls",
+						"referenceName": "ds_json_dls",
 						"type": "DatasetReference",
 						"parameters": {
 							"p_container": "raw",
-							"p_diretorio": "web_scraping/salario_minimo",
-							"p_arquivo": "valores_salario_minimo",
-							"p_delimitador": ";"
+							"p_diretorio": "apis/dummy",
+							"p_arquivo": "clientes_dummy_yyyymmdd"
 						}
 					}
 				]
