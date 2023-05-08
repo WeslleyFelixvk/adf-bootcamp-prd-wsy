@@ -12,10 +12,7 @@
 						"referenceName": "RB - Ingestao Generica - Dummy JS - Web API",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": true,
-					"parameters": {
-						"p_container_destino": "raw"
-					}
+					"waitOnCompletion": true
 				}
 			},
 			{
