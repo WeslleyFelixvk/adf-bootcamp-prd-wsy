@@ -1,0 +1,112 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adf-bootcamp-prd-wsy"
+		},
+		"ls_azureSql_bootcamp_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'ls_azureSql_bootcamp'",
+			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=sql-bootcamp-prd.database.windows.net;Initial Catalog=sqldb-bootcamp-prd;User ID=usr-bootcamp-wsf"
+		},
+		"ls_dls_bootcamp_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ls_dls_bootcamp'"
+		},
+		"ls_adb_bootcamp_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "0502-225147-tjko9ehx"
+		},
+		"ls_dls_bootcamp_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://dlsbootcampprdwsy.dfs.core.windows.net/"
+		},
+		"ls_http_api_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://dummyjson.com/users"
+		},
+		"ls_kv_bootcamp_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://kv-bootcamp-wsy.vault.azure.net/"
+		},
+		"ls_webtable_bootcamp_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://www.dieese.org.br/analisecestabasica/salarioMinimo.html"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "adf-bootcamp-prd-wsy_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"ls_dls_bootcamp_accountKey": {
+						"value": "[parameters('ls_dls_bootcamp_accountKey')]"
+					},
+					"ls_azureSql_bootcamp_connectionString": {
+						"value": "[parameters('ls_azureSql_bootcamp_connectionString')]"
+					},
+					"ls_dls_bootcamp_properties_typeProperties_url": {
+						"value": "[parameters('ls_dls_bootcamp_properties_typeProperties_url')]"
+					},
+					"ls_http_api_properties_typeProperties_url": {
+						"value": "[parameters('ls_http_api_properties_typeProperties_url')]"
+					},
+					"ls_kv_bootcamp_properties_typeProperties_baseUrl": {
+						"value": "[parameters('ls_kv_bootcamp_properties_typeProperties_baseUrl')]"
+					},
+					"ls_adb_bootcamp_properties_typeProperties_existingClusterId": {
+						"value": "[parameters('ls_adb_bootcamp_properties_typeProperties_existingClusterId')]"
+					},
+					"ls_webtable_bootcamp_properties_typeProperties_url": {
+						"value": "[parameters('ls_webtable_bootcamp_properties_typeProperties_url')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "adf-bootcamp-prd-wsy_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adf-bootcamp-prd-wsy_ArmTemplate_0')]"
+			]
+		}
+	]
+}

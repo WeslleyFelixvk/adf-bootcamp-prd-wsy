@@ -1,0 +1,36 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adf-bootcamp-prd-wsy"
+		},
+		"ls_azureSql_bootcamp_connectionString": {
+			"value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=sql-bootcamp-prd.database.windows.net;Initial Catalog=sqldb-bootcamp-prd;User ID=usr-bootcamp-wsf"
+		},
+		"ls_dls_bootcamp_accountKey": {
+			"value": ""
+		},
+		"ls_adb_bootcamp_properties_typeProperties_existingClusterId": {
+			"value": "0502-225147-tjko9ehx"
+		},
+		"ls_dls_bootcamp_properties_typeProperties_url": {
+			"value": "https://dlsbootcampprdwsy.dfs.core.windows.net/"
+		},
+		"ls_http_api_properties_typeProperties_url": {
+			"value": "https://dummyjson.com/users"
+		},
+		"ls_kv_bootcamp_properties_typeProperties_baseUrl": {
+			"value": "https://kv-bootcamp-wsy.vault.azure.net/"
+		},
+		"ls_webtable_bootcamp_properties_typeProperties_url": {
+			"value": "https://www.dieese.org.br/analisecestabasica/salarioMinimo.html"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}

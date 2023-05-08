@@ -1,0 +1,2470 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adf-bootcamp-prd-wsy"
+		},
+		"ls_azureSql_bootcamp_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'ls_azureSql_bootcamp'",
+			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=sql-bootcamp-prd.database.windows.net;Initial Catalog=sqldb-bootcamp-prd;User ID=usr-bootcamp-wsf"
+		},
+		"ls_dls_bootcamp_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ls_dls_bootcamp'"
+		},
+		"ls_adb_bootcamp_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "0502-225147-tjko9ehx"
+		},
+		"ls_dls_bootcamp_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://dlsbootcampprdwsy.dfs.core.windows.net/"
+		},
+		"ls_http_api_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://dummyjson.com/users"
+		},
+		"ls_kv_bootcamp_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://kv-bootcamp-wsy.vault.azure.net/"
+		},
+		"ls_webtable_bootcamp_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://www.dieese.org.br/analisecestabasica/salarioMinimo.html"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/0 - ppl_web_scraping')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CPD - Ingestao Raw",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "WebSource"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"enableSkipIncompatibleRow": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Período",
+											"type": "String"
+										},
+										"sink": {
+											"name": "periodo",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Salário mínimo nominal",
+											"type": "String"
+										},
+										"sink": {
+											"name": "salario_minimo_nominal",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Salário mínimo necessário",
+											"type": "String"
+										},
+										"sink": {
+											"name": "salario_minimo_necessario",
+											"physicalType": "String"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_webtable_salariominimo",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_text_dls",
+								"type": "DatasetReference",
+								"parameters": {
+									"p_container": "raw",
+									"p_diretorio": "web_scraping/salario_minimo",
+									"p_arquivo": "valores_salario_minimo",
+									"p_delimitador": ";"
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "study activities"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-05-03T23:53:26Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_webtable_salariominimo')]",
+				"[concat(variables('factoryId'), '/datasets/ds_text_dls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/1 -ppl_copy_api')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CPD - Ingestao Raw",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "HttpReadSettings",
+									"requestMethod": "GET"
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"enableSkipIncompatibleRow": false
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_json_api_dummy",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_json_dls",
+								"type": "DatasetReference",
+								"parameters": {
+									"p_container": "raw",
+									"p_diretorio": "apis/dummy",
+									"p_arquivo": "clientes_dummy_yyyymmdd"
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "study activities"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-05-03T23:57:17Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_json_api_dummy')]",
+				"[concat(variables('factoryId'), '/datasets/ds_json_dls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/2 - ppl_set_variables')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "SVB - Definir data_particao",
+						"description": "",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_data_particao",
+							"value": {
+								"value": "@convertFromUtc(utcnow(), 'E. South America Standard Time', 'yyyy/MM/dd')",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "SVB - Definir diretorio_completo",
+						"description": "Atribui um valor à variável [v_diretorio_completo], a partir da concatenação do diretório destino, da coleção de origem e da data de partição.",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "SVB - Definir diretorio_destino",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "SVB - Definir data_particao",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_diretorio_completo",
+							"value": {
+								"value": "@toLower(\n    concat(\n        variables('v_diretorio_destino'),\n        '/', \n        pipeline().parameters.p_assunto_origem,\n        if(\n            empty(variables('v_data_particao')),\n            '',\n            concat('/', variables('v_data_particao'))\n        )\n    )\n)",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "SVB - Definir arquivo_destino",
+						"description": "Atribui um valor à variável [v_arquivo_destino], a partir da concatenação da coleção de origem e da data de partição.",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "SVB - Definir data_particao",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_arquivo_destino",
+							"value": {
+								"value": "@toLower(\n    concat(\n        pipeline().parameters.p_assunto_origem,\n        '__', \n        if(\n            empty(variables('v_data_particao')),\n            formatDateTime(utcNow(), 'yyyyMMdd'),\n            replace(variables('v_data_particao'), '/', '')\n        )\n    )\n)",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "SVB - Definir diretorio_destino",
+						"description": "",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_diretorio_destino",
+							"value": {
+								"value": "@toLower(\n    concat(\n        'TeXt',\n        '/',\n        'ENEM'\n    )\n)",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"concurrency": 30,
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"p_container_destino": {
+						"type": "string",
+						"defaultValue": "raw"
+					},
+					"p_diretorio_destino": {
+						"type": "string",
+						"defaultValue": "text/enem"
+					},
+					"p_assunto_origem": {
+						"type": "string",
+						"defaultValue": "prova_enem"
+					}
+				},
+				"variables": {
+					"v_data_particao": {
+						"type": "String"
+					},
+					"v_diretorio_destino": {
+						"type": "String"
+					},
+					"v_arquivo_destino": {
+						"type": "String"
+					},
+					"v_rascunho_nome_tabela_delta": {
+						"type": "String"
+					},
+					"v_diretorio_completo": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "study activities"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-05-11T11:13:04Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/3 - ppl_get_metadata')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "GTM - Busca Arquivos",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_text_dls",
+								"type": "DatasetReference",
+								"parameters": {
+									"p_container": {
+										"value": "@pipeline().parameters.p_container_origem",
+										"type": "Expression"
+									},
+									"p_diretorio": {
+										"value": "@pipeline().parameters.p_diretorio",
+										"type": "Expression"
+									},
+									"p_arquivo": "*.csv",
+									"p_delimitador": {
+										"value": "@pipeline().parameters.p_delimitador",
+										"type": "Expression"
+									}
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
+					},
+					{
+						"name": "SVB - lista de arquivos",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "GTM - Busca Arquivos",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_lista_arquivos",
+							"value": {
+								"value": "@activity('GTM - Busca Arquivos').output.childItems",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "GTM -Valida se o arquivo existe",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_text_dls",
+								"type": "DatasetReference",
+								"parameters": {
+									"p_container": {
+										"value": "@pipeline().parameters.p_container_origem",
+										"type": "Expression"
+									},
+									"p_diretorio": {
+										"value": "@pipeline().parameters.p_diretorio",
+										"type": "Expression"
+									},
+									"p_arquivo": {
+										"value": "@pipeline().parameters.p_arquivo",
+										"type": "Expression"
+									},
+									"p_delimitador": {
+										"value": "@pipeline().parameters.p_delimitador",
+										"type": "Expression"
+									}
+								}
+							},
+							"fieldList": [
+								"exists"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
+					},
+					{
+						"name": "SVB - valida existencia",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "GTM -Valida se o arquivo existe",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_arquivo_existe",
+							"value": {
+								"value": "@activity('GTM -Valida se o arquivo existe').output.exists",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"p_container_origem": {
+						"type": "string"
+					},
+					"p_diretorio": {
+						"type": "string"
+					},
+					"p_arquivo": {
+						"type": "string"
+					},
+					"p_delimitador": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"v_lista_arquivos": {
+						"type": "Array"
+					},
+					"v_arquivo_existe": {
+						"type": "Boolean"
+					}
+				},
+				"folder": {
+					"name": "study activities"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_text_dls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/4 - ppl_foreach')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "GTM - Busca arquivos",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_text_dls",
+								"type": "DatasetReference",
+								"parameters": {
+									"p_container": {
+										"value": "@pipeline().parameters.p_container_origem",
+										"type": "Expression"
+									},
+									"p_diretorio": {
+										"value": "@pipeline().parameters.p_diretorio",
+										"type": "Expression"
+									},
+									"p_arquivo": "*.csv",
+									"p_delimitador": {
+										"value": "@pipeline().parameters.p_delimitador",
+										"type": "Expression"
+									}
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
+					},
+					{
+						"name": "SVB - lista de arquivos",
+						"description": "",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "GTM - Busca arquivos",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_lista_arquivos",
+							"value": {
+								"value": "@activity('GTM - Busca arquivos').output.childItems",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "FHC - itera sobre a lista de arquivos",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "SVB - lista de arquivos",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@variables('v_lista_arquivos')",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "Wait",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 3
+									}
+								},
+								{
+									"name": "SVB - Definir data_particao",
+									"description": "",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Wait",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "v_data_particao",
+										"value": {
+											"value": "@convertFromUtc(utcnow(), 'E. South America Standard Time', 'yyyy/MM/dd')",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "SVB - Definir diretorio_completo",
+									"description": "Atribui um valor à variável [v_diretorio_completo], a partir da concatenação do diretório destino, da coleção de origem e da data de partição.",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "SVB - Definir data_particao",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "v_diretorio_completo",
+										"value": {
+											"value": "@toLower(\n    concat(\n        pipeline().parameters.p_diretorio_destino,\n        variables('v_diretorio_destino'),\n        '/', \n        pipeline().parameters.p_assunto_origem,\n        if(\n            empty(variables('v_data_particao')),\n            '',\n            concat('/', variables('v_data_particao'))\n        )\n    )\n)",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "CPD - Ingere arquivo na Raw",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "SVB - Definir diretorio_completo",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_text_dls",
+											"type": "DatasetReference",
+											"parameters": {
+												"p_container": {
+													"value": "@pipeline().parameters.p_container_origem",
+													"type": "Expression"
+												},
+												"p_diretorio": {
+													"value": "@pipeline().parameters.p_diretorio",
+													"type": "Expression"
+												},
+												"p_arquivo": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"p_delimitador": {
+													"value": "@pipeline().parameters.p_delimitador",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_text_dls",
+											"type": "DatasetReference",
+											"parameters": {
+												"p_container": {
+													"value": "@pipeline().parameters.p_container_destino",
+													"type": "Expression"
+												},
+												"p_diretorio": {
+													"value": "@variables('v_diretorio_completo')",
+													"type": "Expression"
+												},
+												"p_arquivo": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"p_delimitador": {
+													"value": "@pipeline().parameters.p_delimitador",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"p_container_origem": {
+						"type": "string",
+						"defaultValue": "transient"
+					},
+					"p_diretorio": {
+						"type": "string",
+						"defaultValue": "enem"
+					},
+					"p_arquivo": {
+						"type": "string"
+					},
+					"p_delimitador": {
+						"type": "string",
+						"defaultValue": ","
+					},
+					"p_container_destino": {
+						"type": "string",
+						"defaultValue": "raw"
+					},
+					"p_diretorio_destino": {
+						"type": "string",
+						"defaultValue": "text/enem"
+					},
+					"p_assunto_origem": {
+						"type": "string",
+						"defaultValue": "prova_enem"
+					}
+				},
+				"variables": {
+					"v_lista_arquivos": {
+						"type": "Array"
+					},
+					"v_data_particao": {
+						"type": "String"
+					},
+					"v_diretorio_destino": {
+						"type": "String"
+					},
+					"v_diretorio_completo": {
+						"type": "String"
+					},
+					"v_arquivo_destino": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "study activities"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_text_dls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/5 - ppl_until')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "SVB - Definir num_dias_processamento",
+						"description": "Se o parâmetro [p_data_inicio_carga] estiver preenchido, contabiliza o número de dias entre a data informada e a data em D-2  atribuindo o seu valor à [v_num_dias_processamento], senão, contabiliza a quantidade de dias entre d-90 e d-2.\nObs.: Sempre em d-2 que é o período mais recente de disponibilização do Google Big Query.",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_num_dias_processamento",
+							"value": {
+								"value": "@string(\n    div(\n        div(\n            div(\n                div(\n                    sub(\n                        ticks(\n                            formatDateTime(utcNow(), 'yyyy/MM/dd HH:mm:ss')\n                        ),\n                        ticks(\n                            if(\n                                empty(pipeline().parameters.p_data_inicio_carga), \n                                formatDateTime(addDays(utcNow(),-90), 'yyyy/MM/dd HH:mm:ss'),\n                                formatDateTime(pipeline().parameters.p_data_inicio_carga, 'yyyy/MM/dd HH:mm:ss') \n                            )   \n                        )\n                    ),\n                    10000000\n                ),\n                60\n            ),\n            60\n        ),\n        24\n    )\n)",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "UTL - while",
+						"description": "Itera o número de vezes definido pelo \"SVB -  Definir num_dias_processamento\"",
+						"type": "Until",
+						"dependsOn": [
+							{
+								"activity": "SVB - Definir num_dias_processamento",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@greaterOrEquals(\n    int(variables('v_contador')),\n    int(variables('v_num_dias_processamento')) \n)\n",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "SVB - v_contador_temp",
+									"description": "Começa sempre em D-3 pois é a data com mais chances do Google disponibilizar os dados.",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "v_contador_temporario",
+										"value": {
+											"value": "@string(\n    add(\n        int(variables('v_contador')), \n        1\n    )\n)",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Wait - 1 Segundo",
+									"type": "Wait",
+									"dependsOn": [
+										{
+											"activity": "SVB - v_contador",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 1
+									}
+								},
+								{
+									"name": "SVB - v_contador",
+									"description": "",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "SVB - v_contador_temp",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "v_contador",
+										"value": {
+											"value": "@variables('v_contador_temporario')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"timeout": "7.00:00:00"
+						}
+					},
+					{
+						"name": "Sucesso na Carga Full",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "UTL - while",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 3
+						}
+					},
+					{
+						"name": "Falha na Carga Full",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "UTL - while",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 3
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"p_data_inicio_carga": {
+						"type": "string",
+						"defaultValue": "2023/04/30"
+					}
+				},
+				"variables": {
+					"v_num_dias_processamento": {
+						"type": "String"
+					},
+					"v_contador": {
+						"type": "String",
+						"defaultValue": "0"
+					},
+					"v_contador_temporario": {
+						"type": "String",
+						"defaultValue": "0"
+					}
+				},
+				"folder": {
+					"name": "study activities"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-05-11T18:10:53Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/6 - ppl_if')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "IFC - listar arquivos",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@contains(pipeline().parameters.p_deseja_listar_arquivos,'sim')",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "retornou nao",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 1
+									}
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "GTM - Busca arquivos",
+									"type": "GetMetadata",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "ds_text_dls",
+											"type": "DatasetReference",
+											"parameters": {
+												"p_container": {
+													"value": "@pipeline().parameters.p_container_origem",
+													"type": "Expression"
+												},
+												"p_diretorio": {
+													"value": "@pipeline().parameters.p_diretorio",
+													"type": "Expression"
+												},
+												"p_arquivo": "*.csv",
+												"p_delimitador": {
+													"value": "@pipeline().parameters.p_delimitador",
+													"type": "Expression"
+												}
+											}
+										},
+										"fieldList": [
+											"childItems"
+										],
+										"storeSettings": {
+											"type": "AzureBlobFSReadSettings",
+											"recursive": true,
+											"enablePartitionDiscovery": false
+										},
+										"formatSettings": {
+											"type": "DelimitedTextReadSettings"
+										}
+									}
+								},
+								{
+									"name": "SVB - lista de arquivos",
+									"description": "",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "GTM - Busca arquivos",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "v_lista_arquivos",
+										"value": {
+											"value": "@activity('GTM - Busca arquivos').output.childItems",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"p_container_origem": {
+						"type": "string",
+						"defaultValue": "transient"
+					},
+					"p_diretorio": {
+						"type": "string",
+						"defaultValue": "enem"
+					},
+					"p_arquivo": {
+						"type": "string"
+					},
+					"p_delimitador": {
+						"type": "string",
+						"defaultValue": ","
+					},
+					"p_deseja_listar_arquivos": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"v_lista_arquivos": {
+						"type": "Array"
+					},
+					"v_arquivo_existe": {
+						"type": "Boolean"
+					}
+				},
+				"folder": {
+					"name": "study activities"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_text_dls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/7 - ppl_switch')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "SVB - Define Tipo Carga",
+						"description": "Define a variável \"v_tipo_carga\" com o valor passado pelo parâmetro \"p_tipo_carga\" ou pelo iteração do arquivo de controle.",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_tipo_carga",
+							"value": {
+								"value": "@if(\n    or(\n        empty(pipeline().parameters.p_tipo_carga),\n        equals(pipeline().parameters.p_tipo_carga, '.')\n    ),\n    'I'\n    ,\n    pipeline().parameters.p_tipo_carga\n)",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "SWH - Define Data Inicio Carga",
+						"type": "Switch",
+						"dependsOn": [
+							{
+								"activity": "SVB - Define Tipo Carga",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"on": {
+								"value": "@if(\n    and(\n        not(empty(pipeline().parameters.p_data_inicio_carga)),\n        not(equals(pipeline().parameters.p_data_inicio_carga, '.'))\n    ),\n    'Parametro',\n    if(\n        equals(variables('v_tipo_carga'), 'F'),\n        'Full',\n        'Incremental'\n    )\n)",
+								"type": "Expression"
+							},
+							"cases": [
+								{
+									"value": "Parametro",
+									"activities": [
+										{
+											"name": "SVB - Parametro - Define Data Inicio Carga",
+											"type": "SetVariable",
+											"dependsOn": [],
+											"userProperties": [],
+											"typeProperties": {
+												"variableName": "v_data_inicio_carga",
+												"value": {
+													"value": "@pipeline().parameters.p_data_inicio_carga",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"value": "Full",
+									"activities": [
+										{
+											"name": "SVB - Full - Define Data Inicio Carga",
+											"type": "SetVariable",
+											"dependsOn": [],
+											"userProperties": [],
+											"typeProperties": {
+												"variableName": "v_data_inicio_carga",
+												"value": "1900-01-01 00:00:00"
+											}
+										}
+									]
+								},
+								{
+									"value": "Incremental",
+									"activities": [
+										{
+											"name": "SVB - Define Data Inicio Execucao",
+											"type": "SetVariable",
+											"dependsOn": [],
+											"userProperties": [],
+											"typeProperties": {
+												"variableName": "v_data_inicio_carga",
+												"value": {
+													"value": "@convertFromUtc(utcnow(), 'E. South America Standard Time', 'yyyy-MM-dd HH:mm:ss')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"p_tipo_carga": {
+						"type": "string",
+						"defaultValue": "I"
+					},
+					"p_data_inicio_carga": {
+						"type": "string"
+					},
+					"p_rb_sistema_banco_entidade": {
+						"type": "string"
+					},
+					"p_dados_orquestrador": {
+						"type": "array"
+					},
+					"p_rb_etapa_ingestao": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"v_data_inicio_carga": {
+						"type": "String"
+					},
+					"v_tipo_carga": {
+						"type": "String"
+					},
+					"v_dt_ini_execucao": {
+						"type": "String"
+					},
+					"v_esquema_origem": {
+						"type": "String"
+					},
+					"v_tabela_origem": {
+						"type": "String"
+					},
+					"v_informacoes_arquivo_controle": {
+						"type": "Array"
+					},
+					"v_erro_mensagem": {
+						"type": "String"
+					},
+					"v_erro_target": {
+						"type": "String"
+					},
+					"v_etapa_bronze": {
+						"type": "Boolean"
+					}
+				},
+				"folder": {
+					"name": "study activities"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-04-25T20:26:00Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/8 - ppl_orquestrador')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "scraping",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "0 - ppl_web_scraping",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "api",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "scraping",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "1 -ppl_copy_api",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "study activities"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/0 - ppl_web_scraping')]",
+				"[concat(variables('factoryId'), '/pipelines/1 -ppl_copy_api')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/GD - Dim - User Profile')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "NTB - Tratamento - Dim Address",
+						"description": "Executa um notebook para tratar os dados na camada Gold.",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 2,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/notebooks/delta/gold/user_profile/dim/dim_address"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_adb_bootcamp",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "NTB - Tratamento - Dim Age",
+						"description": "Executa um notebook para tratar os dados na camada Gold.",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 2,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/notebooks/delta/gold/user_profile/dim/dim_age"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_adb_bootcamp",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "NTB - Tratamento - Dim Gender",
+						"description": "Executa um notebook para tratar os dados na camada Gold.",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 2,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/notebooks/delta/gold/user_profile/dim/dim_gender"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_adb_bootcamp",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "NTB - Tratamento - Dim Profession",
+						"description": "Executa um notebook para tratar os dados na camada Gold.",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 2,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/notebooks/delta/gold/user_profile/dim/dim_profession"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_adb_bootcamp",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"concurrency": 30,
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"p_container_destino": {
+						"type": "string",
+						"defaultValue": "landing"
+					},
+					"p_diretorio_destino": {
+						"type": "string",
+						"defaultValue": "web_api/dummy_js"
+					},
+					"p_data_particao": {
+						"type": "string"
+					},
+					"p_colecao_origem": {
+						"type": "string",
+						"defaultValue": "users"
+					},
+					"p_formato_data_particao": {
+						"type": "string",
+						"defaultValue": "D"
+					},
+					"p_tipo_carga": {
+						"type": "string",
+						"defaultValue": "I"
+					},
+					"p_rb_etapa_ingestao": {
+						"type": "string"
+					},
+					"p_data_inicio_carga": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"v_data_particao": {
+						"type": "String"
+					},
+					"v_diretorio_destino": {
+						"type": "String"
+					},
+					"v_arquivo_destino": {
+						"type": "String"
+					},
+					"v_diretorio_completo": {
+						"type": "String"
+					},
+					"v_rascunho_nome_tabela_delta": {
+						"type": "String"
+					},
+					"v_filtro_origem": {
+						"type": "String"
+					},
+					"v_selecao_coluna": {
+						"type": "String"
+					},
+					"v_etapa_bronze": {
+						"type": "Boolean"
+					}
+				},
+				"folder": {
+					"name": "2.1 Gold/User Profile/Dim"
+				},
+				"annotations": [
+					"@pipeline().parameters.p_colecao_origem"
+				],
+				"lastPublishTime": "2022-05-11T11:13:04Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_adb_bootcamp')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/GD - Fat - User Profile')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "NTB - Tratamento - Fat User",
+						"description": "Executa um notebook para tratar os dados na camada Gold.",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 2,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/notebooks/delta/gold/user_profile/fat/fat_user"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_adb_bootcamp",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "2.1 Gold/User Profile/Fat"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_adb_bootcamp')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/GD - User Profile')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "PPL - Dim",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "GD - Dim - User Profile",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "PPL - Fat",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "PPL - Dim",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "GD - Fat - User Profile",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "2.1 Gold/User Profile"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/GD - Dim - User Profile')]",
+				"[concat(variables('factoryId'), '/pipelines/GD - Fat - User Profile')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MN - Layers')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "PPL - Raw Bronze",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "RB - Ingestao Generica - Dummy JS - Web API",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "PPL - Silver",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "PPL - Raw Bronze",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "SV - User App - Web Application - Customer Success",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "PPL - Gold",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "PPL - Silver",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "GD - User Profile",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "0 - Main"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/RB - Ingestao Generica - Dummy JS - Web API')]",
+				"[concat(variables('factoryId'), '/pipelines/SV - User App - Web Application - Customer Success')]",
+				"[concat(variables('factoryId'), '/pipelines/GD - User Profile')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RB - Ingestao Generica - Dummy JS - Web API')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "SVB - Definir data_particao",
+						"description": "Atribui um valor à variável [v_data_particao]. ",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_data_particao",
+							"value": {
+								"value": "@convertFromUtc(utcnow(), 'E. South America Standard Time', 'yyyy/MM/dd')",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "SVB - Definir diretorio_completo",
+						"description": "Atribui um valor à variável [v_diretorio_completo], a partir da concatenação do diretório destino, da coleção de origem e da data de partição.",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "SVB - Definir diretorio_destino",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "SVB - Definir data_particao",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_diretorio_completo",
+							"value": {
+								"value": "@toLower(\n    concat(\n        variables('v_diretorio_destino'),\n        '/', \n        pipeline().parameters.p_colecao_origem,\n        if(\n            empty(variables('v_data_particao')),\n            '',\n            concat('/', variables('v_data_particao'))\n        )\n    )\n)",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "SVB - Definir arquivo_destino",
+						"description": "Atribui um valor à variável [v_arquivo_destino], a partir da concatenação da coleção de origem e da data de partição.",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "SVB - Definir data_particao",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_arquivo_destino",
+							"value": {
+								"value": "@toLower(\n    concat(\n        pipeline().parameters.p_colecao_origem,\n        '__', \n        if(\n            empty(variables('v_data_particao')),\n            formatDateTime(utcNow(), 'yyyyMMdd'),\n            replace(variables('v_data_particao'), '/', '')\n        )\n    )\n)",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "SVB - Definir diretorio_destino",
+						"description": "Atribui um valor à variável [v_diretorio_destino]. \nSe o parâmetro [p_diretorio_destino] estiver preenchido, atribui o valor dele, senão, atribui um valor default.",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_diretorio_destino",
+							"value": {
+								"value": "@toLower(\n    if(\n        empty(pipeline().parameters.p_diretorio_destino),\n        'web_api/dummy_js',\n        pipeline().parameters.p_diretorio_destino\n    )\n)",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "SVB - Definir rascunho_nome_tabela_delta",
+						"description": "Atribui um valor à variável [v_rascunho_nome_tabela_delta], a partir da concatenação do diretório de destino e da coleção de origem.",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "SVB - Definir diretorio_destino",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_rascunho_nome_tabela_delta",
+							"value": {
+								"value": "@toLower(\n    concat(\n        variables('v_diretorio_destino'),\n        '/',\n        pipeline().parameters.p_colecao_origem\n    )\n)",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "NTB - Ingestao - Bronze",
+						"description": "Executa um notebook genérico para ingestão da coleção na camada Bronze.",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "CPD - Ingestao - Raw",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 2,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/delta/bronze/web_api/dummy_js/generico_json",
+							"baseParameters": {
+								"pn_diretorio_raw": {
+									"value": "@variables('v_diretorio_completo')",
+									"type": "Expression"
+								},
+								"pn_data_particao": {
+									"value": "@variables('v_data_particao')",
+									"type": "Expression"
+								},
+								"pn_arquivo": {
+									"value": "@variables('v_arquivo_destino')",
+									"type": "Expression"
+								},
+								"pn_rascunho_nome_tabela_delta": {
+									"value": "@variables('v_rascunho_nome_tabela_delta')",
+									"type": "Expression"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_adb_bootcamp",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "CPD - Ingestao - Raw",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "SVB - Definir arquivo_destino",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "SVB - Definir diretorio_completo",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "SVB - Definir rascunho_nome_tabela_delta",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "HttpReadSettings",
+									"requestMethod": "GET"
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"parallelCopies": 2
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_json_api_dummy",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_json_dls",
+								"type": "DatasetReference",
+								"parameters": {
+									"p_container": {
+										"value": "@pipeline().parameters.p_container_destino",
+										"type": "Expression"
+									},
+									"p_diretorio": {
+										"value": "@variables('v_diretorio_completo')",
+										"type": "Expression"
+									},
+									"p_arquivo": {
+										"value": "@variables('v_arquivo_destino')",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"concurrency": 30,
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"p_container_destino": {
+						"type": "string",
+						"defaultValue": "raw"
+					},
+					"p_diretorio_destino": {
+						"type": "string",
+						"defaultValue": "web_api/dummy_js"
+					},
+					"p_data_particao": {
+						"type": "string"
+					},
+					"p_colecao_origem": {
+						"type": "string",
+						"defaultValue": "users"
+					},
+					"p_formato_data_particao": {
+						"type": "string",
+						"defaultValue": "D"
+					},
+					"p_tipo_carga": {
+						"type": "string",
+						"defaultValue": "I"
+					},
+					"p_rb_etapa_ingestao": {
+						"type": "string"
+					},
+					"p_data_inicio_carga": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"v_data_particao": {
+						"type": "String"
+					},
+					"v_diretorio_destino": {
+						"type": "String"
+					},
+					"v_arquivo_destino": {
+						"type": "String"
+					},
+					"v_diretorio_completo": {
+						"type": "String"
+					},
+					"v_rascunho_nome_tabela_delta": {
+						"type": "String"
+					},
+					"v_filtro_origem": {
+						"type": "String"
+					},
+					"v_selecao_coluna": {
+						"type": "String"
+					},
+					"v_etapa_bronze": {
+						"type": "Boolean"
+					}
+				},
+				"folder": {
+					"name": "2.3 Raw e Bronze/Web API/Dummy JS"
+				},
+				"annotations": [
+					"@pipeline().parameters.p_colecao_origem"
+				],
+				"lastPublishTime": "2022-05-11T11:13:04Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_adb_bootcamp')]",
+				"[concat(variables('factoryId'), '/datasets/ds_json_api_dummy')]",
+				"[concat(variables('factoryId'), '/datasets/ds_json_dls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SV - User App - Web Application - Customer Success')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "NTB - Tratamento - Silver",
+						"description": "Executa um notebook para tratar os dados na camada Silver.",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 2,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/notebooks/delta/silver/customer_sucess/web_application/users_app"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_adb_bootcamp",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"concurrency": 30,
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"p_container_destino": {
+						"type": "string",
+						"defaultValue": "landing"
+					},
+					"p_diretorio_destino": {
+						"type": "string",
+						"defaultValue": "web_api/dummy_js"
+					},
+					"p_data_particao": {
+						"type": "string"
+					},
+					"p_colecao_origem": {
+						"type": "string",
+						"defaultValue": "users"
+					},
+					"p_formato_data_particao": {
+						"type": "string",
+						"defaultValue": "D"
+					},
+					"p_tipo_carga": {
+						"type": "string",
+						"defaultValue": "I"
+					},
+					"p_rb_etapa_ingestao": {
+						"type": "string"
+					},
+					"p_data_inicio_carga": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"v_data_particao": {
+						"type": "String"
+					},
+					"v_diretorio_destino": {
+						"type": "String"
+					},
+					"v_arquivo_destino": {
+						"type": "String"
+					},
+					"v_diretorio_completo": {
+						"type": "String"
+					},
+					"v_rascunho_nome_tabela_delta": {
+						"type": "String"
+					},
+					"v_filtro_origem": {
+						"type": "String"
+					},
+					"v_selecao_coluna": {
+						"type": "String"
+					},
+					"v_etapa_bronze": {
+						"type": "Boolean"
+					}
+				},
+				"folder": {
+					"name": "2.2 Silver/Customer Sucess/Web Application"
+				},
+				"annotations": [
+					"@pipeline().parameters.p_colecao_origem"
+				],
+				"lastPublishTime": "2022-05-11T11:13:04Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_adb_bootcamp')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_json_api_dummy')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_http_api",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Fontes Externas"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_http_api')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_json_dls')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_dls_bootcamp",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"p_container": {
+						"type": "string"
+					},
+					"p_diretorio": {
+						"type": "string"
+					},
+					"p_arquivo": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Azure Storage Account"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().p_arquivo",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().p_diretorio",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().p_container",
+							"type": "Expression"
+						}
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_dls_bootcamp')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_sql_azure')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_azureSql_bootcamp",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"p_esquema": {
+						"type": "string"
+					},
+					"p_tabela": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Azure SQL Database/Core Financeiro"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().p_esquema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().p_tabela",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_azureSql_bootcamp')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_static_payments')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_dls_bootcamp",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "study"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "tb_payments.csv",
+						"folderPath": "payments",
+						"fileSystem": "transient"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_dls_bootcamp')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_text_dls')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_dls_bootcamp",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"p_container": {
+						"type": "string"
+					},
+					"p_diretorio": {
+						"type": "string"
+					},
+					"p_arquivo": {
+						"type": "string"
+					},
+					"p_delimitador": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Azure Storage Account"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().p_arquivo",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().p_diretorio",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().p_container",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": {
+						"value": "@dataset().p_delimitador",
+						"type": "Expression"
+					},
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_dls_bootcamp')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_webtable_salariominimo')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_webtable_bootcamp",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Fontes Externas"
+				},
+				"annotations": [],
+				"type": "WebTable",
+				"schema": [],
+				"typeProperties": {
+					"index": 0
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_webtable_bootcamp')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_adb_bootcamp')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-8968751208728840.0.azuredatabricks.net",
+					"accessToken": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "ls_kv_bootcamp",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "secret-adb-bootcamp"
+					},
+					"existingClusterId": "[parameters('ls_adb_bootcamp_properties_typeProperties_existingClusterId')]"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_kv_bootcamp')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_azureSql_bootcamp')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('ls_azureSql_bootcamp_connectionString')]",
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "ls_kv_bootcamp",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "secret-sql-bootcamp-prd"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_kv_bootcamp')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_dls_bootcamp')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ls_dls_bootcamp_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('ls_dls_bootcamp_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_http_api')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('ls_http_api_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_kv_bootcamp')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "buscar chaves no key vault",
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('ls_kv_bootcamp_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_webtable_bootcamp')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "Web",
+				"typeProperties": {
+					"url": "[parameters('ls_webtable_bootcamp_properties_typeProperties_url')]",
+					"authenticationType": "Anonymous"
+				},
+				"connectVia": {
+					"referenceName": "integrationRuntimeSelHosted",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/integrationRuntimeSelHosted')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/integrationRuntimeSelHosted')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"description": "pegar dados locais",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		}
+	]
+}
