@@ -121,7 +121,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"notebookPath": {
-						"value": "@concat(\n    '/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/notebooks/delta/bronze/',\n    variables('v_diretorio_destino'), '/generico_json'\n)",
+						"value": "@concat(\n    '/Repos/weslley_estudos@outlook.com/adb-bootcamp-teste-wsy/notebooks/delta/bronze/',\n    variables('v_diretorio_destino'), '/generico_json'\n)",
 						"type": "Expression"
 					},
 					"baseParameters": {
