@@ -1362,7 +1362,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/notebooks/delta/gold/user_profile/dim/dim_address"
+							"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/delta/gold/user_profile/dim/dim_address"
 						},
 						"linkedServiceName": {
 							"referenceName": "ls_adb_bootcamp",
@@ -1383,7 +1383,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/notebooks/delta/gold/user_profile/dim/dim_age"
+							"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/delta/gold/user_profile/dim/dim_age"
 						},
 						"linkedServiceName": {
 							"referenceName": "ls_adb_bootcamp",
@@ -1404,7 +1404,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/notebooks/delta/gold/user_profile/dim/dim_gender"
+							"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/delta/gold/user_profile/dim/dim_gender"
 						},
 						"linkedServiceName": {
 							"referenceName": "ls_adb_bootcamp",
@@ -1425,7 +1425,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/notebooks/delta/gold/user_profile/dim/dim_profession"
+							"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/delta/gold/user_profile/dim/dim_profession"
 						},
 						"linkedServiceName": {
 							"referenceName": "ls_adb_bootcamp",
@@ -1527,7 +1527,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/notebooks/delta/gold/user_profile/fat/fat_user"
+							"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/delta/gold/user_profile/fat/fat_user"
 						},
 						"linkedServiceName": {
 							"referenceName": "ls_adb_bootcamp",
@@ -2010,7 +2010,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/notebooks/delta/silver/customer_sucess/web_application/users_app"
+							"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/delta/silver/customer_sucess/web_application/users_app"
 						},
 						"linkedServiceName": {
 							"referenceName": "ls_adb_bootcamp",
