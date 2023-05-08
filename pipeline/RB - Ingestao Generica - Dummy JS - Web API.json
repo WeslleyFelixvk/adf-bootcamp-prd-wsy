@@ -283,7 +283,7 @@
 			}
 		},
 		"folder": {
-			"name": "1 - Raw e Bronze/Web API/Dummy JS"
+			"name": "2.3 Raw e Bronze/Web API/Dummy JS"
 		},
 		"annotations": [
 			"@pipeline().parameters.p_colecao_origem"

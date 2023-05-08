@@ -83,7 +83,7 @@
 			}
 		},
 		"folder": {
-			"name": "2 - Silver/Customer Sucess/Web Application"
+			"name": "2.2 Silver/Customer Sucess/Web Application"
 		},
 		"annotations": [
 			"@pipeline().parameters.p_colecao_origem"

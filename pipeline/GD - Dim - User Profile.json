@@ -146,7 +146,7 @@
 			}
 		},
 		"folder": {
-			"name": "3 - Gold/User Profile/Dim"
+			"name": "2.1 Gold/User Profile/Dim"
 		},
 		"annotations": [
 			"@pipeline().parameters.p_colecao_origem"
