@@ -16,7 +16,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-teste-wsy/notebooks/delta/gold/user_profile/fat/fat_user"
+					"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/notebooks/delta/gold/user_profile/fat/fat_user"
 				},
 				"linkedServiceName": {
 					"referenceName": "ls_adb_bootcamp",
