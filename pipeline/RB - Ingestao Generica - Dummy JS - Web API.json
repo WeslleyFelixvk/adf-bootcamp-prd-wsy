@@ -120,10 +120,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": {
-						"value": "@concat(\n    '/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/notebooks/delta/bronze/',\n    variables('v_diretorio_destino'), '/generico_json'\n)",
-						"type": "Expression"
-					},
+					"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/delta/bronze/web_api/dummy_js/generico_json",
 					"baseParameters": {
 						"pn_diretorio_raw": {
 							"value": "@variables('v_diretorio_completo')",
