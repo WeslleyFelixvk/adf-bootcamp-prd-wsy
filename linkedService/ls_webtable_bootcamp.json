@@ -1,6 +1,7 @@
 {
 	"name": "ls_webtable_bootcamp",
 	"properties": {
+		"description": "Conexão com um site aberto para coletar valores via web scraping",
 		"annotations": [],
 		"type": "Web",
 		"typeProperties": {
@@ -8,7 +9,7 @@
 			"authenticationType": "Anonymous"
 		},
 		"connectVia": {
-			"referenceName": "integrationRuntimeSelfHosted",
+			"referenceName": "integrationRuntimeSelHosted",
 			"type": "IntegrationRuntimeReference"
 		}
 	}
