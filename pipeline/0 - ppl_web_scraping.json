@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "CPD - Ingestao Raw",
+				"name": "CPD - ingestao Raw",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -30,7 +30,6 @@
 						}
 					},
 					"enableStaging": false,
-					"enableSkipIncompatibleRow": false,
 					"translator": {
 						"type": "TabularTranslator",
 						"mappings": [
@@ -85,7 +84,7 @@
 						"parameters": {
 							"p_container": "raw",
 							"p_diretorio": "web_scraping/salario_minimo",
-							"p_arquivo": "valores_salario_minimo",
+							"p_arquivo": "valores_salario_minimo.csv",
 							"p_delimitador": ";"
 						}
 					}
@@ -95,8 +94,6 @@
 		"folder": {
 			"name": "study activities"
 		},
-		"annotations": [],
-		"lastPublishTime": "2023-05-03T23:53:26Z"
-	},
-	"type": "Microsoft.DataFactory/factories/pipelines"
+		"annotations": []
+	}
 }

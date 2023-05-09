@@ -12,17 +12,6 @@
 						"value": "@contains(pipeline().parameters.p_deseja_listar_arquivos,'sim')",
 						"type": "Expression"
 					},
-					"ifFalseActivities": [
-						{
-							"name": "retornou nao",
-							"type": "Wait",
-							"dependsOn": [],
-							"userProperties": [],
-							"typeProperties": {
-								"waitTimeInSeconds": 1
-							}
-						}
-					],
 					"ifTrueActivities": [
 						{
 							"name": "GTM - Busca arquivos",
@@ -61,7 +50,6 @@
 								],
 								"storeSettings": {
 									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
 									"enablePartitionDiscovery": false
 								},
 								"formatSettings": {
