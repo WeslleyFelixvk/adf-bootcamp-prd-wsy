@@ -14,6 +14,7 @@
 				},
 				"secretName": "secret-adb-bootcamp"
 			}
-		}
+		},
+		"description": "Estabelece a conexão com as tabelas deltas do databricks"
 	}
 }
