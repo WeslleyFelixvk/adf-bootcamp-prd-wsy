@@ -1,10 +1,12 @@
 {
 	"name": "ls_kv_bootcamp",
 	"properties": {
+		"description": "buscar chaves no key vault",
 		"annotations": [],
 		"type": "AzureKeyVault",
 		"typeProperties": {
-			"baseUrl": "https://kv-bootcamp-teste-wsy.vault.azure.net/"
+			"baseUrl": "https://kv-bootcamp-wsy.vault.azure.net/"
 		}
-	}
+	},
+	"type": "Microsoft.DataFactory/factories/linkedservices"
 }
