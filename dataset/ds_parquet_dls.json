@@ -1,5 +1,5 @@
 {
-	"name": "ds_text_dls",
+	"name": "ds_parquet_dls",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "ls_dls_bootcamp",
@@ -14,16 +14,13 @@
 			},
 			"p_arquivo": {
 				"type": "string"
-			},
-			"p_delimitador": {
-				"type": "string"
 			}
 		},
 		"folder": {
 			"name": "Azure Storage Account"
 		},
 		"annotations": [],
-		"type": "DelimitedText",
+		"type": "Parquet",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
@@ -40,13 +37,7 @@
 					"type": "Expression"
 				}
 			},
-			"columnDelimiter": {
-				"value": "@dataset().p_delimitador",
-				"type": "Expression"
-			},
-			"escapeChar": "\\",
-			"firstRowAsHeader": true,
-			"quoteChar": "\""
+			"compressionCodec": "snappy"
 		},
 		"schema": []
 	}
