@@ -50,6 +50,7 @@
 								],
 								"storeSettings": {
 									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
 									"enablePartitionDiscovery": false
 								},
 								"formatSettings": {
@@ -99,7 +100,8 @@
 				"defaultValue": ","
 			},
 			"p_deseja_listar_arquivos": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "sim"
 			}
 		},
 		"variables": {
