@@ -5,8 +5,8 @@
 		"annotations": [],
 		"type": "AzureBlobFS",
 		"typeProperties": {
-			"url": "https://dlsbootcampprdwsy.dfs.core.windows.net/",
-			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQEI2NjQwNjMyLURGQjktNDBBMC04RjU2LTBBMTZCNDkyRUVCNl9kNmVmOGIxYS04ZTU1LTRjY2UtOWJkNy01NzdiOWRlNmI0MWUiDQp9"
+			"url": "https://dlsbootcamptestewsy.dfs.core.windows.net/",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDkzQzE5NDNELUMyNTktNEI2OC05MTkwLTc2RDFEQTQ0RkNEOF9iNjBhZjVlZC02OWQ1LTRkYTUtYWZkMS0yZDljOTdkZWFiOWQiDQp9"
 		}
 	}
 }

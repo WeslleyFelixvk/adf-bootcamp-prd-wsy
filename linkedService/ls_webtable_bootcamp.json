@@ -1,6 +1,5 @@
 {
 	"name": "ls_webtable_bootcamp",
-	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
 		"annotations": [],
 		"type": "Web",
@@ -9,7 +8,7 @@
 			"authenticationType": "Anonymous"
 		},
 		"connectVia": {
-			"referenceName": "integrationRuntimeSelHosted",
+			"referenceName": "integrationRuntimeSelfHosted",
 			"type": "IntegrationRuntimeReference"
 		}
 	}
