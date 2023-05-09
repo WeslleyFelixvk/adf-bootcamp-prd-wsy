@@ -1,7 +1,7 @@
 {
 	"name": "ls_kv_bootcamp",
 	"properties": {
-		"description": "buscar chaves no key vault",
+		"description": "buscar chaves no key vault (cofre de senhas)",
 		"annotations": [],
 		"type": "AzureKeyVault",
 		"typeProperties": {
