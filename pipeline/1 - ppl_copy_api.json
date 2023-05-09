@@ -4,6 +4,7 @@
 		"activities": [
 			{
 				"name": "CPD - ingestao Raw",
+				"description": "Activitie para fazer a aquisição dos dados em fontes diversas",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
