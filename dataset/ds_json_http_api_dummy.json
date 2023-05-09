@@ -1,18 +1,20 @@
 {
-	"name": "ds_webtable_salariominimo",
+	"name": "ds_json_http_api_dummy",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "ls_webtable_bootcamp",
+			"referenceName": "ls_http_api",
 			"type": "LinkedServiceReference"
 		},
 		"folder": {
 			"name": "Fontes Externas"
 		},
 		"annotations": [],
-		"type": "WebTable",
-		"schema": [],
+		"type": "Json",
 		"typeProperties": {
-			"index": 0
-		}
+			"location": {
+				"type": "HttpServerLocation"
+			}
+		},
+		"schema": {}
 	}
 }
