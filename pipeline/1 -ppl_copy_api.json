@@ -4,6 +4,7 @@
 		"activities": [
 			{
 				"name": "CPD - Ingestao Raw",
+				"description": "Activitie para fazer a aquisição dos dados em fontes diversas",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -16,13 +17,14 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "JsonSource",
+						"type": "DelimitedTextSource",
 						"storeSettings": {
-							"type": "HttpReadSettings",
-							"requestMethod": "GET"
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
 						},
 						"formatSettings": {
-							"type": "JsonReadSettings"
+							"type": "DelimitedTextReadSettings"
 						}
 					},
 					"sink": {
@@ -39,7 +41,7 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "ds_json_api_dummy",
+						"referenceName": "ds_static_payments",
 						"type": "DatasetReference"
 					}
 				],
