@@ -29,7 +29,7 @@
 		"parameters": {
 			"p_caminho_raiz_notebook": {
 				"type": "string",
-				"defaultValue": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-teste-wsy/notebooks/delta/silver"
+				"defaultValue": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/notebooks/delta/silver"
 			},
 			"p_caminho_notebook": {
 				"type": "string"
