@@ -1,26 +1,26 @@
 {
-	"name": "8 - ppl_orquestrador",
+	"name": "GD - User Profile",
 	"properties": {
 		"activities": [
 			{
-				"name": "scraping",
+				"name": "PPL - Dim",
 				"type": "ExecutePipeline",
 				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "0 - ppl_web_scraping",
+						"referenceName": "GD - Dim - User Profile",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true
 				}
 			},
 			{
-				"name": "api",
+				"name": "PPL - Fat",
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "scraping",
+						"activity": "PPL - Dim",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -29,7 +29,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "1 - ppl_copy_api",
+						"referenceName": "GD - Fat - User Profile",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true
@@ -37,7 +37,7 @@
 			}
 		],
 		"folder": {
-			"name": "study activities"
+			"name": "2.1 Gold/User Profile"
 		},
 		"annotations": []
 	}

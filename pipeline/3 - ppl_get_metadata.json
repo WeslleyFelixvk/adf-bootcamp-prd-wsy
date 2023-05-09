@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "GTM - Busca Arquivos",
+				"name": "GTM - Busca arquivos",
 				"type": "GetMetadata",
 				"dependsOn": [],
 				"policy": {
@@ -47,27 +47,7 @@
 				}
 			},
 			{
-				"name": "SVB - lista de arquivos",
-				"type": "SetVariable",
-				"dependsOn": [
-					{
-						"activity": "GTM - Busca Arquivos",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "v_lista_arquivos",
-					"value": {
-						"value": "@activity('GTM - Busca Arquivos').output.childItems",
-						"type": "Expression"
-					}
-				}
-			},
-			{
-				"name": "GTM -Valida se o arquivo existe",
+				"name": "GTM - Valida se o arquivo existe",
 				"type": "GetMetadata",
 				"dependsOn": [],
 				"policy": {
@@ -91,10 +71,7 @@
 								"value": "@pipeline().parameters.p_diretorio",
 								"type": "Expression"
 							},
-							"p_arquivo": {
-								"value": "@pipeline().parameters.p_arquivo",
-								"type": "Expression"
-							},
+							"p_arquivo": "dados_enem_2021_ba.csv",
 							"p_delimitador": {
 								"value": "@pipeline().parameters.p_delimitador",
 								"type": "Expression"
@@ -114,11 +91,33 @@
 				}
 			},
 			{
-				"name": "SVB - valida existencia",
+				"name": "SVB - lista de arquivos",
+				"description": "",
 				"type": "SetVariable",
 				"dependsOn": [
 					{
-						"activity": "GTM -Valida se o arquivo existe",
+						"activity": "GTM - Busca arquivos",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_lista_arquivos",
+					"value": {
+						"value": "@activity('GTM - Busca arquivos').output.childItems",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SVB - valida existencia",
+				"description": "",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "GTM - Valida se o arquivo existe",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -128,7 +127,7 @@
 				"typeProperties": {
 					"variableName": "v_arquivo_existe",
 					"value": {
-						"value": "@activity('GTM -Valida se o arquivo existe').output.exists",
+						"value": "@activity('GTM - Valida se o arquivo existe').output.exists",
 						"type": "Expression"
 					}
 				}
@@ -136,16 +135,19 @@
 		],
 		"parameters": {
 			"p_container_origem": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "transient"
 			},
 			"p_diretorio": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "enem"
 			},
 			"p_arquivo": {
 				"type": "string"
 			},
 			"p_delimitador": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": ","
 			}
 		},
 		"variables": {
