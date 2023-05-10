@@ -235,7 +235,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-teste-wsy/notebooks/utility/start_cluster"
+					"notebookPath": "/Repos/weslley_estudos@outlook.com/adb-bootcamp-prd-wsy/notebooks/utility/start_cluster"
 				},
 				"linkedServiceName": {
 					"referenceName": "ls_adb_bootcamp",
